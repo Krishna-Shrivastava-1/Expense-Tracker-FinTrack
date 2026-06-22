@@ -43,7 +43,7 @@ export function AppSidebar({ ...props }) {
                     <IconWallet className="size-4 text-white" />
                   </div>
                   <div className="flex flex-col gap-0.5 leading-none">
-                    <span className="font-semibold text-sm">FinTrack</span>
+                    <span className="font-semibold text-sm">XpenseHub</span>
                     <span className="text-xs text-muted-foreground">Expense Tracker</span>
                   </div>
                 </a>

@@ -44,10 +44,10 @@ export default function ProfileForm({ user }) {
             <Input type="text" value={user?.email || ""} disabled className="bg-muted opacity-80" />
           </div>
 
-          <div className="grid gap-2">
+          {/* <div className="grid gap-2">
             <Label className="text-muted-foreground">Account User ID (UUID)</Label>
             <Input type="text" value={user?.id || ""} disabled className="bg-muted opacity-80 text-xs font-mono" />
-          </div>
+          </div> */}
 
           <hr className="border-t" />
 

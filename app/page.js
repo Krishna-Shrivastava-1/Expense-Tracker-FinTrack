@@ -12,7 +12,7 @@ export default function Home() {
             <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
               <Wallet className="h-4 w-4" />
             </div>
-            <span>FinTrack</span>
+            <span>XpenseHub</span>
           </div>
           
           <div className="flex items-center gap-4">
@@ -74,7 +74,7 @@ export default function Home() {
                   <span className="w-3 h-3 rounded-full bg-amber-400/40" />
                   <span className="w-3 h-3 rounded-full bg-emerald-400/40" />
                 </div>
-                <span className="text-xs text-muted-foreground font-mono bg-muted px-3 py-1 rounded-md">dashboard.fintrack.app</span>
+                <span className="text-xs text-muted-foreground font-mono bg-muted px-3 py-1 rounded-md">dashboard.XpenseHub.app</span>
               </div>
               <div className="grid gap-4 md:grid-cols-3 text-left">
                 <div className="border rounded-xl p-4 bg-background/50">
