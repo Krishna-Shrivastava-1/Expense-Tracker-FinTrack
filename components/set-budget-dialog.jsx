@@ -126,7 +126,7 @@ export default function SetBudgetDialog({ budget, open: controlledOpen, onOpenCh
         </AlertDialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label>Budget Limit Target Amount ($)</Label>
+            <Label>Budget Limit Target Amount (₹)</Label>
             <Input
               type="number"
               placeholder="e.g. 1200"

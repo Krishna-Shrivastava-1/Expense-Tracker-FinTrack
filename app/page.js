@@ -18,13 +18,13 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <Link 
               href="/login" 
-              className="text-sm font-medium hover:text-primary transition-colors px-3 py-2 rounded-md"
+              className="text-sm font-medium hover:text-primary transition-colors px-3 py-2 rounded-md text-nowrap"
             >
               Sign in
             </Link>
             <Link 
               href="/signup" 
-              className="text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg shadow-sm transition-all"
+              className="text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg shadow-sm transition-all text-nowrap"
             >
               Get Started
             </Link>
