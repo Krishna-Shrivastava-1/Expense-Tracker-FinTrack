@@ -7,7 +7,7 @@ export default function Home() {
       
       {/* Navigation Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto h-16 px-6 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto h-16 px-4 flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
             <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
               <Wallet className="h-4 w-4" />
@@ -18,13 +18,13 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <Link 
               href="/login" 
-              className="text-sm font-medium hover:text-primary transition-colors px-3 py-2 rounded-md text-nowrap"
+              className="text-sm font-medium hover:text-primary transition-colors px-2 py-2 rounded-md text-nowrap"
             >
               Sign in
             </Link>
             <Link 
               href="/signup" 
-              className="text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg shadow-sm transition-all text-nowrap"
+              className="text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 px-2 py-2 rounded-lg shadow-sm transition-all text-nowrap"
             >
               Get Started
             </Link>
