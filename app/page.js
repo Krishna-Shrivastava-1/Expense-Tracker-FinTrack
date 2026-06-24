@@ -141,7 +141,7 @@ export default function Home() {
       {/* Footer Section Footer */}
       <footer className="mt-auto border-t bg-muted/30">
         <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <p>© {new Date().getFullYear()} FinTrack Inc. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} XpenseHub Inc. All rights reserved.</p>
           <div className="flex gap-6 items-center">
             <Link href="#" className="hover:text-foreground">Privacy Policy</Link>
             <Link href="#" className="hover:text-foreground">Terms of Service</Link>
