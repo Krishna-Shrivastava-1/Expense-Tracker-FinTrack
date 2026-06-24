@@ -45,7 +45,7 @@ export default function InstallButton() {
   return (
     <button 
       onClick={handleInstallClick}
-      className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-indigo-700 transition"
+      className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium shadow hover:bg-indigo-700 transition text-nowrap"
     >
       Install Web App
     </button>
