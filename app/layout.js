@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 // Define your deployment URL here for absolute paths
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://xpensehub.com";
+const siteUrl ="https://xpensehub.vercel.app";
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
