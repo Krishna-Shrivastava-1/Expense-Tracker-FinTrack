@@ -196,12 +196,11 @@
 //     </div>
 //   );
 // }
-
 // components/transaction-table.jsx
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useState, useEffect, useRef, useTransition } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { Edit2, MoreHorizontal, Trash2, Loader2 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
@@ -229,6 +228,8 @@ const ITEMS_PER_PAGE = 7;
 export default function TransactionTable({ initialTransactions = [] }) {
   const supabase = createClient();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   
   const activeRange = searchParams.get("range") || "all"; 
   const customFrom = searchParams.get("from");
@@ -244,6 +245,23 @@ export default function TransactionTable({ initialTransactions = [] }) {
 
   const observerTargetRef = useRef(null);
 
+  // 🔄 Sync Server updates (initialTransactions) with Client State (transactions)
+  useEffect(() => {
+    setTransactions((prev) => {
+      // 1. Keep the new initial transactions (first page) as the baseline
+      const merged = [...initialTransactions];
+      const newIds = new Set(initialTransactions.map((t) => t.id));
+
+      // 2. Append existing items from state that aren't in the new page
+      for (const tx of prev) {
+        if (!newIds.has(tx.id)) {
+          merged.push(tx);
+        }
+      }
+      return merged;
+    });
+  }, [initialTransactions]);
+
   const loadMoreTransactions = async () => {
     if (isLoadingMore || !hasMore) return;
     setIsLoadingMore(true);
@@ -258,29 +276,26 @@ export default function TransactionTable({ initialTransactions = [] }) {
         .order("transaction_date", { ascending: false })
         .order("created_at", { ascending: false });
 
-      // 🕒 Handling Strict Inclusion Boundaries
       if (activeRange === "today") {
         const start = new Date();
         start.setHours(0, 0, 0, 0);
         const end = new Date();
         end.setHours(23, 59, 59, 999);
-        
         query = query.gte("transaction_date", start.toISOString()).lte("transaction_date", end.toISOString());
       } 
       else if (activeRange === "7days") {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        sevenDaysAgo.setHours(0, 0, 0, 0); // Include the whole starting day
+        sevenDaysAgo.setHours(0, 0, 0, 0);
         query = query.gte("transaction_date", sevenDaysAgo.toISOString());
       } 
       else if (activeRange === "30days") {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        thirtyDaysAgo.setHours(0, 0, 0, 0); // Include the whole starting day
+        thirtyDaysAgo.setHours(0, 0, 0, 0);
         query = query.gte("transaction_date", thirtyDaysAgo.toISOString());
       } 
       else if (activeRange === "custom" && customFrom && customTo) {
-        // 💡 FORCE INCLUSION: Start at 00:00:00 of 'From' and end at 23:59:59 of 'To'
         const startDate = new Date(customFrom);
         startDate.setHours(0, 0, 0, 0);
         
@@ -300,7 +315,11 @@ export default function TransactionTable({ initialTransactions = [] }) {
         setHasMore(false); 
       }
       if (data && data.length > 0) {
-        setTransactions((prev) => [...prev, ...data]);
+        setTransactions((prev) => {
+          const existingIds = new Set(prev.map((t) => t.id));
+          const filteredNewData = data.filter((t) => !existingIds.has(t.id));
+          return [...prev, ...filteredNewData];
+        });
       }
     } catch (err) {
       console.error("Infinite scroll error:", err.message);
@@ -339,7 +358,11 @@ export default function TransactionTable({ initialTransactions = [] }) {
       alert(error.message);
       setDeletingId(null);
     } else {
+      // Optimistically remove from state and tell Next.js to refresh other dashboard cards
       setTransactions((prev) => prev.filter((t) => t.id !== id));
+      startTransition(() => {
+        router.refresh();
+      });
       setDeletingId(null);
     }
   };
@@ -384,7 +407,7 @@ export default function TransactionTable({ initialTransactions = [] }) {
           </TableHeader>
           <TableBody>
             {sortedTransactions.map((t, index) => {
-              const isRowDeleting = deletingId === t.id;
+              const isRowDeleting = deletingId === t.id || (isPending && deletingId === t.id);
               const currentDateStr = format(parseISO(t.transaction_date), "PP");
               const previousTransaction = sortedTransactions[index - 1];
               const previousDateStr = previousTransaction
