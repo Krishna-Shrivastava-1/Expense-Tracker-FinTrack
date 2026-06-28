@@ -168,7 +168,7 @@
 // }
 
 // app/(protected)/dashboard/page.jsx
-
+// app/dashboard/page.jsx
 import { createClient } from "@/utils/supabase/server";
 import AddTransactionDialog from "@/components/AddTransactionDialog";
 import SetBudgetDialog from "@/components/set-budget-dialog"; 
@@ -187,28 +187,26 @@ export default async function DashboardPage({ searchParams }) {
     redirect("/login");
   }
 
-  // 💡 Extract user display name from metadata with email fallback
   const userDisplayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "User";
 
-  // 💡 Compute a smart, dynamic time-of-day greeting
   const currentHour = new Date().getHours();
   let timeGreeting = "Welcome back";
   if (currentHour < 12) timeGreeting = "Good morning";
   else if (currentHour < 17) timeGreeting = "Good afternoon";
   else timeGreeting = "Good evening";
 
-  // Parse parameters from the URL safely
   const resolvedParams = await searchParams;
   const range = resolvedParams?.range || "7days";
-  const fromParam = resolvedParams?.from;
-  const toParam = resolvedParams?.to;
+  const fromParam = resolvedParams?.from || "";
+  const toParam = resolvedParams?.to || "";
 
   // 1. Build the dynamic base query targeting the transactions
   let query = supabase
     .from("transaction")
     .select("*")
     .eq("user_id", user?.id)
-    .order("transaction_date", { ascending: false });
+    .order("transaction_date", { ascending: false })
+    .order("created_at", { ascending: false }); // Added to match client layout sorting tie-breakers
 
   // Apply conditional date range filtering flags
   if (range === "custom" && fromParam && toParam) {
@@ -225,12 +223,16 @@ export default async function DashboardPage({ searchParams }) {
     let dateCutoff = new Date();
     if (range === "today") dateCutoff.setHours(0, 0, 0, 0);
     else if (range === "30days") dateCutoff.setDate(dateCutoff.getDate() - 30);
-    else dateCutoff.setDate(dateCutoff.getDate() - 7); // Fallback default '7days'
+    else dateCutoff.setDate(dateCutoff.getDate() - 7); // Default fallback
 
     query = query.gte("transaction_date", dateCutoff.toISOString());
   }
 
   const { data: transactions = [] } = await query;
+
+  // 📊 SLICE THE FIRST 7 ITEMS FOR THE TABLE INITIAL LOAD ONLY
+  // This keeps your cards and charts whole, but tells the table to lazy-load the rest.
+  const tableInitialTransactions = transactions.slice(0, 7);
 
   // 2. Fetch the current active budget parameters
   const { data: budgets = [] } = await supabase
@@ -239,12 +241,14 @@ export default async function DashboardPage({ searchParams }) {
     .eq("user_id", user?.id)
     .order("created_at", { ascending: false });
 
+  // 💡 Create a unique filter string to wipe and reset table memory instantly on change
+  const uniqueFilterKey = `${range}-${fromParam}-${toParam}`;
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Header section with text controls & action triggers */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
-          {/* 💡 Personalized user greeting message added here */}
           <h1 className="text-3xl font-bold tracking-tight">
             {timeGreeting}, {userDisplayName}!
           </h1>
@@ -257,22 +261,26 @@ export default async function DashboardPage({ searchParams }) {
         </div>
       </div>
 
-      {/* 3. Dynamic Budget Progress Cards Deck */}
+      {/* Dynamic Budget Progress Cards Deck */}
       {budgets?.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-xl font-semibold tracking-tight">Active Budgets</h2>
           <BudgetTracker budgets={budgets} transactions={transactions} />
         </div>
       )}
 
-      {/* Analytics Panels */}
+      {/* Analytics Panels (uses full transaction scope) */}
       <StatsCards transactions={transactions} />
       <FinancialCharts transactions={transactions} />
 
       {/* Data Management Audit Table */}
       <div className="border rounded-xl bg-card p-6 shadow-sm">
         <h2 className="text-xl font-semibold mb-4">Recent Transactions</h2>
-        <TransactionTable transactions={transactions} />
+        
+        {/* 💡 Key-swapped layout attached here with limited transaction array */}
+        <TransactionTable 
+          key={uniqueFilterKey} 
+          initialTransactions={tableInitialTransactions} 
+        />
       </div>
     </div>
   );

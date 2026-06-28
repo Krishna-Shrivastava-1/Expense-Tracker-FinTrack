@@ -398,6 +398,7 @@ const DEFAULT_CATEGORIES = [
   "Education",
   "Entertainment",
   "Salary",
+  "Investment",
   "Other",
 ];
 
