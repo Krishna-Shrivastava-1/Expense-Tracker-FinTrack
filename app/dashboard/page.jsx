@@ -180,6 +180,7 @@ import TransactionTable from "@/components/transaction-table";
 import { redirect } from "next/navigation";
 
 export default async function DashboardPage({ searchParams }) {
+  
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -199,7 +200,9 @@ export default async function DashboardPage({ searchParams }) {
   const range = resolvedParams?.range || "7days";
   const fromParam = resolvedParams?.from || "";
   const toParam = resolvedParams?.to || "";
-
+  if (!resolvedParams?.range) {
+    redirect("/dashboard?range=7days");
+  }
   // 1. Build the dynamic base query targeting the transactions
   let query = supabase
     .from("transaction")
