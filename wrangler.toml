@@ -1,0 +1,5 @@
+name = "xpensehub"
+compatibility_date = "2026-03-01"
+
+# If your app doesn't use service bindings, you can omit them entirely.
+# If you need to keep bindings clean, ensure no self-reference points to a missing worker.
